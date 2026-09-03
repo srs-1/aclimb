@@ -49,6 +49,7 @@ button { cursor: pointer; }
 .subtitle { color: var(--muted); margin: 0; font-size: 15px; }
 .icon-button { border: 1px solid var(--line); background: var(--paper); min-width: 42px; height: 42px; padding: 0; display: grid; place-items: center; border-radius: 50%; position: relative; }
 .icon-button i { position: absolute; right: 8px; top: 8px; width: 7px; height: 7px; background: var(--berry); border: 2px solid white; border-radius: 50%; }
+.pdf-download-button { flex: 0 0 auto; white-space: nowrap; }.pdf-download-button:disabled { cursor: wait; opacity: .65; transform: none; }
 .card { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 6px 24px rgba(45, 67, 57, .035); }
 .today-grid { display: grid; grid-template-columns: minmax(430px, 1.55fr) minmax(300px, .85fr); gap: 22px; }
 .main-column, .right-column { display: grid; align-content: start; gap: 18px; }
@@ -131,8 +132,11 @@ button { cursor: pointer; }
 .today-moss:before { left: 5px; }.today-moss:after { right: 5px; }
 .today-moss i { position: absolute; z-index: 1; left: 9px; top: 14px; width: 4px; height: 4px; border-radius: 50%; background: #263c32; box-shadow: 15px 0 #263c32; }
 .today-moss b { position: absolute; z-index: 1; left: 3px; right: 3px; bottom: 7px; height: 6px; background: var(--berry); transform: rotate(-5deg); }
-.trail-hero { background: var(--forest-dark); }
-.trail-hero > img, .trail-hero.mountain > img, .trail-hero.lakeside > img { filter: none; object-fit: cover; }
+.trail-hero { background-color: var(--forest-dark); background-position: center; background-size: cover; }
+.trail-hero.woodland { background-image: url('/woodland-route.png'); }
+.trail-hero.mountain { background-image: url('/mountain-route.png'); }
+.trail-hero.lakeside { background-image: url('/lakeside-route.png'); }
+.trail-hero > img, .trail-hero.mountain > img, .trail-hero.lakeside > img { z-index: 0; width: 100% !important; height: 100% !important; filter: none; object-fit: cover; }
 .trail-hero-shade { z-index: 1; background: linear-gradient(rgba(27,56,46,.02), rgba(20,42,34,.08) 45%, rgba(17,38,30,.83)); }
 .trail-top, .trail-bottom { z-index: 5; }
 .replay-step { display: inline-flex; align-items: center; gap: 7px; padding: 10px 12px; border: 1px solid rgba(255,255,255,.4); border-radius: 10px; color: white; background: rgba(25,48,40,.54); backdrop-filter: blur(5px); font-size: 10px; font-weight: 700; }
@@ -198,6 +202,7 @@ button { cursor: pointer; }
   .location-tabs { margin-top: 17px; display: grid; grid-template-columns: repeat(3,1fr); }.location-tabs button { justify-content: center; padding: 9px 4px; }.trail-hero { min-height: 360px; }.trail-hero img { object-position: 59% center; }.trail-bottom { display: block; }.trail-bottom .primary-button, .trail-bottom .replay-step { margin-top: 18px; width: 100%; justify-content: center; }.craft-large { grid-template-columns: 1fr; }.craft-picture { min-height: 125px; }.trail-aside { grid-template-columns: 1fr; }.keepsake-grid { grid-template-columns: 1fr 1fr; }.modal { max-height: calc(100vh - 30px); overflow-y: auto; padding: 24px 19px; }
   .plan-date-banner { grid-template-columns: auto 1fr; align-items: start; }.plan-date-banner .secondary-button { grid-column: 1 / -1; width: 100%; }
   .route-choice-grid { grid-template-columns: 1fr; }.route-choice-grid > button { display: grid; grid-template-columns: 105px 1fr; }.route-choice-art { height: 72px; }.route-choice-copy { align-self: center; }
+  .pdf-download-button { width: 100%; margin-top: 16px; }
 }
 
 @media (max-width: 390px) {

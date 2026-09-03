@@ -1,4 +1,4 @@
-const CACHE = "aclimb-static-v3";
+const CACHE = "aclimb-static-v4";
 const DECORATIVE_ASSETS = ["/icon.svg", "/woodland-route.png", "/mountain-route.png", "/lakeside-route.png"];
 
 self.addEventListener("install", (event) => {
@@ -32,9 +32,17 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Only decorative assets are cache-first. Scripts and styles stay network-managed.
+  // Refresh decorative artwork from the network and use the cache only when offline.
   if (DECORATIVE_ASSETS.includes(url.pathname)) {
-    event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
   }
 });
 self.addEventListener("push", (event) => {

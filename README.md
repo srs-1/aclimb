@@ -15,6 +15,7 @@ ACLimb is currently a functional, local-first MVP. It can be installed as a Prog
 | Manual plan creation and revisions | Working |
 | Scheduled sessions and actual-rep logging | Working |
 | Draft recovery and same-day corrections | Working |
+| Local PDF activity summary | Working |
 | Trails, companion movement, crafts, stamps, wins, and recaps | Working |
 | Home Screen installation | Working after HTTPS deployment |
 | Accounts, invitations, cloud sync, and backup | Not connected yet |
@@ -32,6 +33,7 @@ The current build is suitable for product testing with non-sensitive sample data
 - Displays a seven-day schedule strip and calculated weekly completion.
 - Surfaces review-date reminders without ending or changing the plan.
 - Shows the active trail, craft progress, recent keepsakes, and monthly recap.
+- Downloads a locally generated PDF containing the active plan, progress totals, session history, keepsakes, and personal wins.
 
 ### Session
 
@@ -142,6 +144,7 @@ Important limitations:
 - There is no cloud backup, account recovery, or cross-device synchronization yet.
 - Browser storage is not a substitute for a production authentication and data-protection design.
 - Exercise data, pain values, personal wins, images, and OCR content are not sent to analytics; the MVP currently includes no analytics integration.
+- PDF summaries are created on the device and exclude pain scores and private session notes.
 
 ## Architecture
 
@@ -149,6 +152,7 @@ Important limitations:
 - **Interface:** responsive custom CSS with accessible system typography and Lucide icons
 - **PWA:** web app manifest, standalone metadata, and a custom service worker
 - **Persistence:** versioned Local Storage state plus temporary local session drafts
+- **PDF export:** dynamically loaded jsPDF document generation with no upload step
 - **Artwork:** original route illustrations and a separate CSS companion sprite
 - **Hosting target:** Vercel
 - **Planned backend:** Supabase Auth and Postgres with owner-scoped Row Level Security

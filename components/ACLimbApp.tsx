@@ -3,7 +3,7 @@
 import Image from "next/image";
 import {
   Award, Bell, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight,
-  CircleCheck, Clock3, Footprints, Gift, Heart, Leaf, Map, Minus, Mountain,
+  CircleCheck, Clock3, FileDown, Footprints, Gift, Heart, Leaf, Map, Minus, Mountain,
   Pause, PencilLine, Play, Plus, RotateCcw, ShieldCheck, Sparkles, Sprout,
   Timer, Trees, Trophy, Waves, X,
 } from "lucide-react";
@@ -266,6 +266,7 @@ export default function ACLimbApp() {
   const [activeOccurrence, setActiveOccurrence] = useState<{ date: string; time: string } | null>(null);
   const [toast, setToast] = useState("");
   const [trailAnimationKey, setTrailAnimationKey] = useState(0);
+  const [exportingPdf, setExportingPdf] = useState(false);
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
@@ -329,6 +330,20 @@ export default function ACLimbApp() {
     flash("Monthly postcard added to your journey!");
   }
 
+  async function downloadPdf() {
+    if (exportingPdf) return;
+    setExportingPdf(true);
+    try {
+      const { downloadACLimbPdf } = await import("@/lib/aclimbPdf");
+      downloadACLimbPdf(data);
+      flash("Your private PDF summary was downloaded.");
+    } catch {
+      flash("The PDF could not be created. Please try again.");
+    } finally {
+      setExportingPdf(false);
+    }
+  }
+
   if (!ready) return <div className="loading-screen"><Brand /><span>Loading your trail…</span></div>;
 
   const occurrencePlan = activeOccurrence ? planForDate(data.plan, data.planHistory, dateFromKey(activeOccurrence.date)) : null;
@@ -346,7 +361,7 @@ export default function ACLimbApp() {
     </aside>
     <main className={`page-shell ${screen === "session" ? "session-shell" : ""}`}>
       <div className="mobile-top"><Brand /><button className="icon-button" aria-label="Notifications"><Bell size={20} /></button></div>
-      {screen === "today" && <TodayScreen data={data} onStart={openSession} onPlan={() => navigate("plan")} onTrail={() => navigate("trail")} onSaveRecap={saveRecap} />}
+      {screen === "today" && <TodayScreen data={data} exportingPdf={exportingPdf} onDownloadPdf={downloadPdf} onStart={openSession} onPlan={() => navigate("plan")} onTrail={() => navigate("trail")} onSaveRecap={saveRecap} />}
       {screen === "session" && occurrencePlan && activeOccurrence && <SessionScreen plan={occurrencePlan} occurrence={activeOccurrence} existing={data.sessions.find((item) => item.id === sessionId(activeOccurrence.date, activeOccurrence.time, occurrencePlan.revision))} onBack={() => navigate("today")} onSave={saveSession} />}
       {screen === "plan" && <PlanScreen plan={data.plan} profileName={data.profileName} onProfileName={(profileName) => setData((current) => ({ ...current, profileName }))} onSave={savePlan} />}
       {screen === "trail" && <TrailScreen data={data} animationKey={trailAnimationKey} onStart={() => { const times = scheduledTimes(activePlan, new Date()); const next = times.find((time) => !data.sessions.some((item) => item.id === sessionId(localDateKey(), time, activePlan?.revision ?? 0) && item.status === "completed")) ?? times[0]; if (next) openSession(localDateKey(), next); else navigate("today"); }} onPlan={() => navigate("plan")} onWin={(win) => setData((current) => ({ ...current, wins: [...current.wins, win] }))} />}
@@ -361,7 +376,7 @@ export default function ACLimbApp() {
 }
 
 function Brand() {
-  return <div className="brand" aria-label="ACLimb"><span className="brand-mark"><span /></span><span>AC<strong>limb</strong></span></div>;
+  return <div className="brand" aria-label="ACLimb"><span className="brand-mark"><span /></span><span>ACL<strong>imb</strong></span></div>;
 }
 
 function NavButton({ active, icon, label, onClick }: { active: boolean; icon: ReactNode; label: string; onClick: () => void }) {
@@ -375,7 +390,7 @@ function KeepsakeArtwork({ keepsake, size = 18 }: { keepsake: JourneyKeepsake; s
   return <Mountain size={size} />;
 }
 
-function TodayScreen({ data, onStart, onPlan, onTrail, onSaveRecap }: { data: AppData; onStart: (date: string, time: string) => void; onPlan: () => void; onTrail: () => void; onSaveRecap: (key: string) => void }) {
+function TodayScreen({ data, exportingPdf, onDownloadPdf, onStart, onPlan, onTrail, onSaveRecap }: { data: AppData; exportingPdf: boolean; onDownloadPdf: () => void; onStart: (date: string, time: string) => void; onPlan: () => void; onTrail: () => void; onSaveRecap: (key: string) => void }) {
   const [recapOpen, setRecapOpen] = useState(false);
   const now = new Date();
   const todayKey = localDateKey(now);
@@ -406,7 +421,7 @@ function TodayScreen({ data, onStart, onPlan, onTrail, onSaveRecap }: { data: Ap
   const pendingRevision = data.plan.revision !== activePlan.revision && data.plan.effectiveDate > todayKey ? data.plan : null;
 
   return <div className="screen today-screen">
-    <header className="screen-header"><div><p className="eyebrow">{formatLongDate(now)}</p><h1>{data.profileName ? `Hello, ${data.profileName}.` : "Ready for your next step?"}</h1><p className="subtitle">Your progress below is calculated from saved sessions.</p></div><button className="icon-button desktop-only" aria-label="Notifications"><Bell size={21} /></button></header>
+    <header className="screen-header"><div><p className="eyebrow">{formatLongDate(now)}</p><h1>{data.profileName ? `Hello, ${data.profileName}.` : "Ready for your next step?"}</h1><p className="subtitle">Your progress below is calculated from saved sessions.</p></div><button className="secondary-button pdf-download-button" onClick={onDownloadPdf} disabled={exportingPdf} aria-busy={exportingPdf}><FileDown size={17} /> {exportingPdf ? "Creating PDF…" : "Download PDF"}</button></header>
     {(reviewDue || reviewSoon) && <section className={`plan-date-banner ${reviewDue ? "due" : "upcoming"}`} role="status"><CalendarDays /><div><strong>{reviewDue ? "Plan review due" : `Plan review on ${formatShortDate(activePlan.reviewDate!)}`}</strong><p>{reviewDue ? `The review date was ${formatShortDate(activePlan.reviewDate!)}. Your schedule will continue until you enter updated clinician instructions.` : "This is a reminder only. It does not end or change your plan."}</p></div><button className="secondary-button" onClick={onPlan}>Review plan</button></section>}
     {pendingRevision && <section className="plan-date-banner pending" role="status"><Clock3 /><div><strong>Updated plan starts {formatShortDate(pendingRevision.effectiveDate)}</strong><p>Your current plan remains active until then.</p></div><button className="secondary-button" onClick={onPlan}>View revision</button></section>}
     <section className="today-grid">
